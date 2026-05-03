@@ -31,10 +31,10 @@ function fileStats(file) {
 function renderSummary(data) {
   refsEl.textContent = `${data.baseLabel} (${data.baseSha}) -> ${data.headLabel} (${data.headSha})`;
   summaryEl.innerHTML = [
-    `<span class="metric"><strong>${data.fileCount}</strong> files</span>`,
-    `<span class="metric plus"><strong>+${data.additions}</strong></span>`,
-    `<span class="metric minus"><strong>-${data.deletions}</strong></span>`,
-    `<span class="metric" title="${escapeAttr(data.repoRoot)}">${escapeAttr(data.repoRoot)}</span>`
+    `<span class="metric metric-files"><strong>${data.fileCount}</strong> files</span>`,
+    `<span class="metric metric-additions"><strong>+${data.additions}</strong></span>`,
+    `<span class="metric metric-deletions"><strong>-${data.deletions}</strong></span>`,
+    `<span class="metric metric-repo" title="${escapeAttr(data.repoRoot)}">${escapeAttr(data.repoRoot)}</span>`
   ].join("");
 }
 

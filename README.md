@@ -1,6 +1,6 @@
-# rv
+# Critique
 
-`rv` is a tiny local webapp for reviewing git changes side by side.
+`cr` is a tiny local webapp for reviewing git changes side by side.
 
 ## Install
 
@@ -9,32 +9,32 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e .
 ```
 
-Then run `rv` from the virtualenv:
+Then run `cr` from the virtualenv:
 
 ```sh
-.venv/bin/rv branch_name
+.venv/bin/cr branch_name
 ```
 
-If you activate the virtualenv first, `rv branch_name` will work directly.
+If you activate the virtualenv first, `cr branch_name` will work directly.
 
 ## Usage
 
 ```sh
-rv branch_name
-rv commit_hash
-rv branch1 branch2
-rv commit_hash1 commit_hash2
+cr branch_name
+cr commit_hash
+cr branch1 branch2
+cr commit_hash1 commit_hash2
 ```
 
-With one ref, `rv` compares `git merge-base <ref> master` to `<ref>`. If the repo uses `main` instead of `master`, it falls back to `main`. With two refs, it compares them directly.
+With one ref, `cr` compares `git merge-base <ref> master` to `<ref>`. If the repo uses `main` instead of `master`, it falls back to `main`. With two refs, it compares them directly.
 
 The browser view shows every affected file with its full repo path. Click a file to expand a side-by-side diff with syntax highlighting, diff colors, and inline changed spans. Click it again to fold the file.
 
 Useful flags:
 
 ```sh
-rv feature-branch --no-open
-rv main feature-branch --port 9000
+cr feature-branch --no-open
+cr main feature-branch --port 9000
 ```
 
-For development without activating the virtualenv, `./rv ...` still works from this checkout.
+For development without activating the virtualenv, `./cr ...` still works from this checkout.

@@ -25,7 +25,7 @@ DEFAULT_PORT = 8765
 CONTEXT_LINES = 4
 
 
-class RvError(Exception):
+class CritiqueError(Exception):
     """User-facing error raised when git cannot produce the requested diff."""
 
 
@@ -73,7 +73,7 @@ def run_git(
     )
     if check and proc.returncode != 0:
         stderr = proc.stderr.strip() if isinstance(proc.stderr, str) else proc.stderr.decode("utf-8", "replace").strip()
-        raise RvError(stderr or f"git {' '.join(args)} failed")
+        raise CritiqueError(stderr or f"git {' '.join(args)} failed")
     return proc
 
 
@@ -86,7 +86,7 @@ def find_repo_root(start: str) -> str:
         text=True,
     )
     if proc.returncode != 0:
-        raise RvError("rv must be run from inside a git repository.")
+        raise CritiqueError("cr must be run from inside a git repository.")
     return proc.stdout.strip()
 
 
@@ -99,7 +99,7 @@ def choose_default_target(repo_root: str) -> str:
     for ref in ("master", "main"):
         if ref_exists(repo_root, ref):
             return ref
-    raise RvError("Could not find a default comparison target. Expected `master` or `main`.")
+    raise CritiqueError("Could not find a default comparison target. Expected `master` or `main`.")
 
 
 def short_sha(repo_root: str, ref: str) -> str:
@@ -110,7 +110,7 @@ def resolve_compare(repo_root: str, refs: list[str]) -> tuple[str, str, str, str
     if len(refs) == 1:
         head_ref = refs[0]
         if not ref_exists(repo_root, head_ref):
-            raise RvError(f"Unknown branch or commit: `{head_ref}`")
+            raise CritiqueError(f"Unknown branch or commit: `{head_ref}`")
         target = choose_default_target(repo_root)
         merge_base = run_git(repo_root, ["merge-base", head_ref, target]).stdout.strip()
         return merge_base, head_ref, f"merge-base({head_ref}, {target})", head_ref
@@ -119,10 +119,10 @@ def resolve_compare(repo_root: str, refs: list[str]) -> tuple[str, str, str, str
         base_ref, head_ref = refs
         missing = [ref for ref in refs if not ref_exists(repo_root, ref)]
         if missing:
-            raise RvError("Unknown branch or commit: " + ", ".join(f"`{ref}`" for ref in missing))
+            raise CritiqueError("Unknown branch or commit: " + ", ".join(f"`{ref}`" for ref in missing))
         return base_ref, head_ref, base_ref, head_ref
 
-    raise RvError("Usage: rv <branch-or-commit> OR rv <base-branch-or-commit> <head-branch-or-commit>")
+    raise CritiqueError("Usage: cr <branch-or-commit> OR cr <base-branch-or-commit> <head-branch-or-commit>")
 
 
 def decode_path(raw: bytes) -> str:
@@ -497,7 +497,7 @@ def build_rows(old_text: str, new_text: str, language: str, context_lines: int =
 def file_payload(context: CompareContext, file_id: int) -> dict[str, object]:
     item = next((file for file in context.files if file.id == file_id), None)
     if item is None:
-        raise RvError(f"Unknown file id: {file_id}")
+        raise CritiqueError(f"Unknown file id: {file_id}")
 
     old_path = item.old_path
     new_path = None if item.status.startswith("D") else item.path
@@ -565,8 +565,10 @@ def summary_payload(context: CompareContext) -> dict[str, object]:
 
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
+    "/favicon.ico": ("codereview.png", "image/png"),
     "/assets/app.css": ("app.css", "text/css; charset=utf-8"),
     "/assets/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    "/assets/codereview.png": ("codereview.png", "image/png"),
 }
 
 
@@ -575,11 +577,11 @@ def read_static_asset(path: str) -> tuple[bytes, str] | None:
     if asset is None:
         return None
     filename, content_type = asset
-    data = resources.files("rv_static").joinpath(filename).read_bytes()
+    data = resources.files("critique").joinpath(filename).read_bytes()
     return data, content_type
 
 
-class RvRequestHandler(BaseHTTPRequestHandler):
+class CritiqueRequestHandler(BaseHTTPRequestHandler):
     context: CompareContext
 
     def log_message(self, format: str, *args: object) -> None:
@@ -617,11 +619,11 @@ class RvRequestHandler(BaseHTTPRequestHandler):
                 return
             self.send_text("Not found", HTTPStatus.NOT_FOUND)
         except Exception as exc:
-            status = HTTPStatus.BAD_REQUEST if isinstance(exc, (ValueError, RvError)) else HTTPStatus.INTERNAL_SERVER_ERROR
+            status = HTTPStatus.BAD_REQUEST if isinstance(exc, (ValueError, CritiqueError)) else HTTPStatus.INTERNAL_SERVER_ERROR
             self.send_text(str(exc), status)
 
 
-class RvServer(ThreadingHTTPServer):
+class CritiqueServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
 
@@ -634,11 +636,11 @@ def find_port(host: str, requested_port: int) -> int:
                 return port
             except OSError:
                 continue
-    raise RvError(f"No available port found between {requested_port} and {requested_port + 99}.")
+    raise CritiqueError(f"No available port found between {requested_port} and {requested_port + 99}.")
 
 
-def make_handler(context: CompareContext) -> type[RvRequestHandler]:
-    class BoundHandler(RvRequestHandler):
+def make_handler(context: CompareContext) -> type[CritiqueRequestHandler]:
+    class BoundHandler(CritiqueRequestHandler):
         pass
 
     BoundHandler.context = context
@@ -647,7 +649,7 @@ def make_handler(context: CompareContext) -> type[RvRequestHandler]:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="rv",
+        prog="cr",
         description="Open a local side-by-side git diff viewer.",
     )
     parser.add_argument("refs", nargs="*", help="One ref to compare against merge-base with master/main, or two refs to compare directly.")
@@ -663,9 +665,9 @@ def main(argv: list[str] | None = None) -> int:
         repo_root = find_repo_root(os.getcwd())
         context = build_context(repo_root, args.refs)
         port = find_port(args.host, args.port)
-        server = RvServer((args.host, port), make_handler(context))
+        server = CritiqueServer((args.host, port), make_handler(context))
         url = f"http://{args.host}:{port}/"
-        print(f"rv serving {context.base_label} -> {context.head_label}")
+        print(f"Critique serving {context.base_label} -> {context.head_label}")
         print(f"{len(context.files)} files, +{sum(file.additions or 0 for file in context.files)} -{sum(file.deletions or 0 for file in context.files)}")
         print(url)
         if not args.no_open:
@@ -673,12 +675,12 @@ def main(argv: list[str] | None = None) -> int:
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\nrv stopped")
+            print("\nCritique stopped")
         finally:
             server.server_close()
         return 0
-    except RvError as exc:
-        print(f"rv: {exc}", file=sys.stderr)
+    except CritiqueError as exc:
+        print(f"cr: {exc}", file=sys.stderr)
         return 2
 
 

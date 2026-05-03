@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from rv_app import main
+from critique.app import main
 
 
 if __name__ == "__main__":
