@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rv-diff-viewer"
+version = "0.1.0"
+description = "A local side-by-side git diff viewer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "rv contributors" }
+]
+dependencies = []
+
+[project.scripts]
+rv = "rv_app:main"
+
+[tool.setuptools]
+py-modules = ["rv_app"]
