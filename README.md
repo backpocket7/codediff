@@ -37,4 +37,4 @@ cr feature-branch --no-open
 cr main feature-branch --port 9000
 ```
 
-For development without activating the virtualenv, `./cr ...` still works from this checkout.
+For development without activating the virtualenv, use `.venv/bin/cr ...`.
