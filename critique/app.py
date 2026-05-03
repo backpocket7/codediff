@@ -44,6 +44,13 @@ class GitFile:
             return f"{self.old_path} -> {self.path}"
         return self.path
 
+    @property
+    def display_status(self) -> str:
+        code = self.status[:1]
+        if code in {"R", "C"}:
+            return "M"
+        return code or self.status
+
 
 @dataclass(frozen=True)
 class CompareContext:
@@ -512,7 +519,7 @@ def file_payload(context: CompareContext, file_id: int) -> dict[str, object]:
         "path": item.path,
         "oldPath": item.old_path,
         "displayPath": item.display_path,
-        "status": item.status,
+        "status": item.display_status,
         "language": language,
         "binary": False,
     }
@@ -550,7 +557,7 @@ def summary_payload(context: CompareContext) -> dict[str, object]:
         "files": [
             {
                 "id": file.id,
-                "status": file.status,
+                "status": file.display_status,
                 "path": file.path,
                 "oldPath": file.old_path,
                 "displayPath": file.display_path,

@@ -86,15 +86,26 @@ function toggleFile(id) {
   renderFiles();
 }
 
-function rowHtml(row) {
+function sideRowHtml(row, side) {
   const cls = `diff-row-${row.kind}`;
-  const oldNo = row.oldLine ?? "";
-  const newNo = row.newLine ?? "";
+  const lineNo = side === "old" ? row.oldLine ?? "" : row.newLine ?? "";
+  const html = side === "old" ? row.oldHtml : row.newHtml;
   return `
-    <div class="${cls} line-no old-no">${oldNo}</div>
-    <div class="${cls} code-cell old-cell">${row.oldHtml}</div>
-    <div class="${cls} line-no new-no">${newNo}</div>
-    <div class="${cls} code-cell new-cell">${row.newHtml}</div>
+    <div class="${cls} diff-line">
+      <div class="line-no ${side}-no">${lineNo}</div>
+      <div class="code-cell ${side}-cell"><span>${html}</span></div>
+    </div>
+  `;
+}
+
+function paneHtml(title, rows, side) {
+  return `
+    <section class="diff-pane diff-pane-${side}">
+      <div class="diff-grid-head">${escapeAttr(title)}</div>
+      <div class="diff-pane-body">
+        ${rows.map(row => sideRowHtml(row, side)).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -122,13 +133,8 @@ function renderDiff(file) {
       <span>${file.rows.length} rendered rows</span>
     </div>
     <div class="diff-scroll">
-      <div class="diff-grid">
-        <div class="diff-grid-head">Base</div>
-        <div class="diff-grid-head">${escapeAttr(state.summary.baseLabel)}</div>
-        <div class="diff-grid-head">Head</div>
-        <div class="diff-grid-head">${escapeAttr(state.summary.headLabel)}</div>
-        ${file.rows.map(rowHtml).join("")}
-      </div>
+      ${paneHtml(state.summary.baseLabel, file.rows, "old")}
+      ${paneHtml(state.summary.headLabel, file.rows, "new")}
     </div>
   `;
 }

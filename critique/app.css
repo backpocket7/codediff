@@ -359,19 +359,23 @@ main {
 }
 
 .diff-scroll {
-  overflow-x: auto;
-  max-height: 72vh;
-}
-
-.diff-grid {
-  min-width: 840px;
   display: grid;
-  grid-template-columns: 38px minmax(335px, 1fr) 38px minmax(335px, 1fr);
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  max-height: 72vh;
+  overflow-y: auto;
   font-family: var(--mono);
   font-size: 10px;
   line-height: 1.22;
   color: var(--code);
+}
+
+.diff-pane {
+  min-width: 0;
+  border-right: 1px solid var(--border);
+}
+
+.diff-pane:last-child {
+  border-right: 0;
 }
 
 .diff-grid-head {
@@ -383,6 +387,17 @@ main {
   border-bottom: 1px solid var(--border-strong);
   font-weight: 700;
   padding: 3px 6px;
+}
+
+.diff-pane-body {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.diff-line {
+  display: grid;
+  grid-template-columns: 38px max-content;
+  min-width: 100%;
 }
 
 .line-no {
@@ -397,37 +412,40 @@ main {
 
 .code-cell {
   white-space: pre;
-  overflow: visible;
   padding: 0 5px;
-  border-right: 1px solid var(--border);
 }
 
-.diff-row-context.code-cell,
-.diff-row-context.line-no {
+.code-cell > span {
+  display: inline-block;
+  min-width: max-content;
+}
+
+.diff-row-context .code-cell,
+.diff-row-context .line-no {
   background: #ffffff;
 }
 
-.diff-row-delete.old-cell,
-.diff-row-delete.old-no {
+.diff-row-delete .old-cell,
+.diff-row-delete .old-no {
   background: var(--red-bg);
 }
 
-.diff-row-insert.new-cell,
-.diff-row-insert.new-no {
+.diff-row-insert .new-cell,
+.diff-row-insert .new-no {
   background: var(--green-bg);
 }
 
-.diff-row-change.old-cell,
-.diff-row-change.old-no,
-.diff-row-change.new-cell,
-.diff-row-change.new-no {
+.diff-row-change .old-cell,
+.diff-row-change .old-no,
+.diff-row-change .new-cell,
+.diff-row-change .new-no {
   background: var(--yellow-bg);
 }
 
-.diff-row-hunk.code-cell,
-.diff-row-hunk.line-no,
-.diff-row-gap.code-cell,
-.diff-row-gap.line-no {
+.diff-row-hunk .code-cell,
+.diff-row-hunk .line-no,
+.diff-row-gap .code-cell,
+.diff-row-gap .line-no {
   background: #edf3fb;
   color: #53667e;
   font-weight: 700;
