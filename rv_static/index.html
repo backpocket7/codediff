@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rv diff viewer</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="header-inner">
+        <div class="brand-line">
+          <h1>rv</h1>
+          <div class="refs" id="refs">Loading comparison</div>
+        </div>
+        <div class="summary" id="summary"></div>
+      </div>
+    </header>
+    <main>
+      <div class="toolbar">
+        <input class="filter" id="filter" type="search" placeholder="Filter files by path" autocomplete="off">
+        <button class="button" id="expandAll" type="button">Expand all</button>
+        <button class="button" id="collapseAll" type="button">Collapse all</button>
+      </div>
+      <div class="file-list" id="files"></div>
+    </main>
+  </div>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

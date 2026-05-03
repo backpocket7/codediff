@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "A local side-by-side git diff viewer."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
   { name = "rv contributors" }
 ]
@@ -19,3 +19,7 @@ rv = "rv_app:main"
 
 [tool.setuptools]
 py-modules = ["rv_app"]
+packages = ["rv_static"]
+
+[tool.setuptools.package-data]
+rv_static = ["*.css", "*.html", "*.js"]
