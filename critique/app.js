@@ -9,6 +9,7 @@ const refsEl = document.querySelector("#refs");
 const summaryEl = document.querySelector("#summary");
 const filesEl = document.querySelector("#files");
 const filterEl = document.querySelector("#filter");
+const urlParams = new URLSearchParams(window.location.search);
 
 function escapeAttr(value) {
   return String(value ?? "")
@@ -180,11 +181,14 @@ async function boot() {
     if (!response.ok) throw new Error(await response.text());
     state.summary = await response.json();
     renderSummary(state.summary);
-    if (!state.summary.files.length) {
-      filesEl.innerHTML = `<div class="empty-state">No files changed in this comparison.</div>`;
-      return;
-    }
-    renderFiles();
+        if (!state.summary.files.length) {
+          filesEl.innerHTML = `<div class="empty-state">No files changed in this comparison.</div>`;
+          return;
+        }
+        if (urlParams.get("expand") === "all") {
+          for (const file of state.summary.files) state.open.add(file.id);
+        }
+        renderFiles();
   } catch (error) {
     refsEl.textContent = "Unable to load comparison";
     filesEl.innerHTML = `<div class="empty-state">${escapeAttr(error.message)}</div>`;

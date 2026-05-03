@@ -2,6 +2,10 @@
 
 `cr` is a tiny local webapp for reviewing git changes side by side.
 
+## Screenshot
+
+![Critique showing expanded side-by-side diffs](docs/screenshots/critique-overview.png)
+
 ## Install
 
 ```sh
