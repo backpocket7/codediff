@@ -19,6 +19,8 @@
   --red-line: #f0bbbb;
   --yellow-bg: #fff7dc;
   --yellow-line: #edd27d;
+  --brand-yellow: #facc15;
+  --brand-green: #22c55e;
   --code: #1f2937;
   --shadow: 0 10px 30px rgba(23, 32, 42, 0.08);
   --mono: "JetBrains Mono", "Cascadia Code", "Berkeley Mono", "IBM Plex Mono", "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
@@ -86,11 +88,11 @@ h1 {
 }
 
 .brand-c {
-  color: #fd595b;
+  color: var(--brand-green);
 }
 
 .brand-r {
-  color: #96dd8e;
+  color: var(--brand-yellow);
 }
 
 .refs {
